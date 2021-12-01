@@ -1,0 +1,37 @@
+---
+title: "Biostat_projet"
+author: "Claire et Lucie"
+date: "01/12/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(ggplot2)
+```
+
+
+```{r}
+mort <- read.csv("mortDK.csv", header = TRUE, sep = ";")
+mort <- mort %>% rename("taux.deces" = rt, 
+                        "Infections" = r1,
+                        "Cancer"= r2,
+                        "Tumeurs.Bénignes" = r3, 
+                        "Endocrine" = r4, 
+                        "Maladies.Sang" = r5, 
+                        "Systeme.Nerveux" = r6, 
+                        "Cerebrovasculaire" = r7, 
+                        "Cardiaque" = r8, 
+                        "Maladies.Respiratpires" = r9, 
+                        "Maladies.Foie" = r10, 
+                        "Maladies.Digestives" = r11, 
+                        "Maladie.Génito-urinaire" = r12, 
+                        "Non.Definis" = r13, 
+                        "Mort.Naturelle" = r14, 
+                        "Mort.Violente" = r15) %>%
+          mutate(sex = as.factor(sex))
+
+summary(mort)
+head(mort)
+```
