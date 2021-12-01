@@ -30,7 +30,8 @@ mort <- mort %>% rename("taux.deces" = rt,
                         "Non.Definis" = r13, 
                         "Mort.Naturelle" = r14, 
                         "Mort.Violente" = r15) %>%
-          mutate(sex = as.factor(sex))
+          select(-ï..)
+mort$sex <- mort$sex %>% factor( labels = c("H", "F"))
 
 summary(mort)
 head(mort)
