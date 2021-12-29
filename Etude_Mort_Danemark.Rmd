@@ -54,22 +54,24 @@ Les 15 variables d'identification du décès sont calculés de la même manière
 
 Entre les années 1943 et 1948, 224 654 nourissons étaient de sexe masculins. 12 072 d'entre eux sont morts. Ce qui représente environ 53 individus issus de cette catégorie sur 1000 sont morts sur cette période. 
 
+
+## Modèle a choisir, lequel on fait (beaucoup de variables, avec pleins de catégories)
 ```{r}
-glm(nb.deces ~ periode * sex * age,  offset = log(PA), data = mort)
-glm(Infections ~ periode * sex * age,  offset = log(PA), data = mort)
-glm(Cancer ~ periode * sex * age,  offset = log(PA), data = mort)
-glm(Tumeurs.Bénignes ~ periode * sex * age,  offset = log(PA), data = mort)
-glm(Endocrine ~ periode * sex * age,  offset = log(PA), data = mort)
-glm(Maladies.Sang ~ periode * sex * age,  offset = log(PA), data = mort)
-glm(Cerebrovasculaire ~ periode * sex * age,  offset = log(PA), data = mort)
-glm(Cardiaque ~ periode * sex * age,  offset = log(PA), data = mort)
-glm(Maladies.Respiratoires ~ periode * sex * age,  offset = log(PA), data = mort)
-glm(Maladies.Foie ~ periode * sex * age,  offset = log(PA), data = mort)
-glm(Maladies.Digestives ~ periode * sex * age,  offset = log(PA), data = mort)
-glm(Maladie.Génito_urinaire ~ periode * sex * age,  offset = log(PA), data = mort)
-glm(Non.Definis ~ periode * sex * age,  offset = log(PA), data = mort)
-glm(Mort.Naturelle ~ periode * sex * age,  offset = log(PA), data = mort)
-glm(Mort.Violente ~ periode * sex * age,  offset = log(PA), data = mort)
+# glm(nb.deces ~ periode * sex * age,  offset = log(PA), data = mort)
+# glm(Infections ~ periode * sex * age,  offset = log(PA), data = mort)
+# glm(Cancer ~ periode * sex * age,  offset = log(PA), data = mort)
+# glm(Tumeurs.Bénignes ~ periode * sex * age,  offset = log(PA), data = mort)
+# glm(Endocrine ~ periode * sex * age,  offset = log(PA), data = mort)
+# glm(Maladies.Sang ~ periode * sex * age,  offset = log(PA), data = mort)
+# glm(Cerebrovasculaire ~ periode * sex * age,  offset = log(PA), data = mort)
+# glm(Cardiaque ~ periode * sex * age,  offset = log(PA), data = mort)
+# glm(Maladies.Respiratoires ~ periode * sex * age,  offset = log(PA), data = mort)
+# glm(Maladies.Foie ~ periode * sex * age,  offset = log(PA), data = mort)
+# glm(Maladies.Digestives ~ periode * sex * age,  offset = log(PA), data = mort)
+# glm(Maladie.Génito_urinaire ~ periode * sex * age,  offset = log(PA), data = mort)
+# glm(Non.Definis ~ periode * sex * age,  offset = log(PA), data = mort)
+# glm(Mort.Naturelle ~ periode * sex * age,  offset = log(PA), data = mort)
+# glm(Mort.Violente ~ periode * sex * age,  offset = log(PA), data = mort)
 
 ```
 
