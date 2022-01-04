@@ -33,14 +33,14 @@ mort <- mort %>% rename("taux.deces" = rt,
                         "Non.Definis" = r13, 
                         "Mort.Naturelle" = r14, 
                         "Mort.Violente" = r15)
-
+mort <- mort %>% select(-X)
 mort$sex <- mort$sex %>% factor( labels = c("H", "F"))
 mort$periode <- mort$periode %>% factor( labels =c("43-47", "48-52",
                                                    "53-57", "58-62",
                                                    "63-67", "68-72",
                                                    "73-77", "78-82",
                                                    "83-87", "88-92"))
-mort$age <- mort$age %>% factor()
+
 
 summary(mort)
 head(mort)
@@ -60,32 +60,33 @@ De plus, nous savons que les résultats d'une enquète de cohorte peuvent être 
 
 Un individu pourra donc, au cours du suivi, contribuer aux personnes-années de différentes strates, si l'une au moins de ses covariables évolue au cours du temps.
 
-Nous allonbs donc estimer les paramètres d'un modèle de Poisson.
+Notre objectif est donc de déterminer si les covariables *âge, sexe* et *période* ont un effets sur les différentes causes de mortalité. Nous utiliserons des modèle de Poisson. 
 
-## Creation des groupe age
+Au vu de notre grand nombre d'observations, on décide de se restraindre à la tranche des 18-25ans.
 ```{r}
-mort1 <- mort %>% group_by(sex,periode)
-
+mort <- mort %>% filter((age >=18) & (age <=25))
+mort$age <- mort$age %>% factor()
 ```
 
 
 ## Modèle a choisir, lequel on fait (beaucoup de variables, avec pleins de catégories)
 ```{r}
-# glm(nb.deces ~ periode * sex * age,  offset = log(PA), data = mort)
-# glm(Infections ~ periode * sex * age,  offset = log(PA), data = mort)
-# glm(Cancer ~ periode * sex * age,  offset = log(PA), data = mort)
-# glm(Tumeurs.Bénignes ~ periode * sex * age,  offset = log(PA), data = mort)
-# glm(Endocrine ~ periode * sex * age,  offset = log(PA), data = mort)
-# glm(Maladies.Sang ~ periode * sex * age,  offset = log(PA), data = mort)
-# glm(Cerebrovasculaire ~ periode * sex * age,  offset = log(PA), data = mort)
-# glm(Cardiaque ~ periode * sex * age,  offset = log(PA), data = mort)
-# glm(Maladies.Respiratoires ~ periode * sex * age,  offset = log(PA), data = mort)
-# glm(Maladies.Foie ~ periode * sex * age,  offset = log(PA), data = mort)
-# glm(Maladies.Digestives ~ periode * sex * age,  offset = log(PA), data = mort)
-# glm(Maladie.Génito_urinaire ~ periode * sex * age,  offset = log(PA), data = mort)
-# glm(Non.Definis ~ periode * sex * age,  offset = log(PA), data = mort)
-# glm(Mort.Naturelle ~ periode * sex * age,  offset = log(PA), data = mort)
-# glm(Mort.Violente ~ periode * sex * age,  offset = log(PA), data = mort)
+mdoel_nb_deces<-glm(nb.deces ~ periode * sex * age,  offset = log(PA), family = "poisson", data = mort)
+mdoel_nb_deces
+summary(mdoel_nb_deces)
+```
 
+
+```{r}
+model_maladie.foie<-glm(Maladies.Foie ~ periode * sex * age,  offset = log(PA), family = "poisson", data = mort)
+model_maladie.foie
+summary(model_maladie.foie)
+```
+
+
+```{r}
+model_mort.viol<-glm(Mort.Violente ~ periode * sex * age,  offset = log(PA), family = "poisson", data = mort)
+model_mort.viol
+summary(model_mort.viol)
 ```
 
