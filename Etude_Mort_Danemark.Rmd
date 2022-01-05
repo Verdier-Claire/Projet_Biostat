@@ -41,27 +41,53 @@ mort$periode <- mort$periode %>% factor( labels =c("43-47", "48-52",
                                                    "73-77", "78-82",
                                                    "83-87", "88-92"))
 mort$age <- mort$age %>% factor()
-
-summary(mort)
-head(mort)
 ```
 
-Le jeux de données est composé de 1820 observations et 21 variables. Ces variables sont l'âge, le sexe, la période, le nombre de décès, le taux de décès et 15 variables sur l'identification du décès. Lorsque qu'on parle d'identification du décès, on parle si la personne est morte d'un cancer, d'une mort naturelle, par exemple.  
+Le jeux de données est composé de 1820 observations et 21 variables. Ces 
+variables sont l'âge, le sexe, la période, le nombre de décès, le taux de décès 
+et 15 variables sur l'identification du décès. Lorsque qu'on parle 
+d'identification du décès, on parle si la personne est morte d'un cancer, 
+d'une mort naturelle, par exemple.  
 
 La variable *taux.deces* est calculée d'après la formule suivante : 
 $$\mbox{taux.deces}=\frac{1000\times \mbox{nb.deces}}{PA}$$  
-Les 15 variables d'identification du décès sont calculés de la même manière.  
+Les 15 variables d'identification du décès sont calculés de la même manière.
 
-Entre les années 1943 et 1948, 224 654 nourissons étaient de sexe masculins. 12 072 d'entre eux sont morts. Ce qui représente environ 53 individus issus de cette catégorie sur 1000 sont morts sur cette période. 
+
+```{r}
+summary(mort)
+```
+
+\textcolor{green}{TODO : description du data avec stat descriptives ?}
+
+```{r}
+head(mort)
+```
+
+Entre les années 1943 et 1948, 224 654 nourissons étaient de sexe masculins. 12 072 d'entre eux sont morts. Ce qui représente environ 53 individus issus de cette catégorie sur 1000 sont morts sur cette période.  \textcolor{green}{TODO plus détailler une autre ligne}
 
 
 ## Modèle a choisir, lequel on fait (beaucoup de variables, avec pleins de catégories)
+### Modalité de référence
+```{r}
+# contrasts(mort$age)
+contrasts((mort$periode))
+contrasts(mort$sex)
+```
+
+La modalité de référence est l'âge zéro. La modalité de référence pour la
+période temporelle est entre 1943 et 1947. Enfin la modalité de référence au 
+niveau sexe est l'homme.  \textcolor{green}{TODO changer la modalité de ref de 
+l'âge}
+
+\textcolor{green}{TODO choisir un modèle}
 ```{r}
 # glm(nb.deces ~ periode * sex * age,  offset = log(PA), data = mort)
 # glm(Infections ~ periode * sex * age,  offset = log(PA), data = mort)
 # glm(Cancer ~ periode * sex * age,  offset = log(PA), data = mort)
 # glm(Tumeurs.Bénignes ~ periode * sex * age,  offset = log(PA), data = mort)
-# glm(Endocrine ~ periode * sex * age,  offset = log(PA), data = mort)
+endocrine <- glm(Endocrine ~ periode + sex + age,  offset = log(PA), 
+                 data = mort)
 # glm(Maladies.Sang ~ periode * sex * age,  offset = log(PA), data = mort)
 # glm(Cerebrovasculaire ~ periode * sex * age,  offset = log(PA), data = mort)
 # glm(Cardiaque ~ periode * sex * age,  offset = log(PA), data = mort)
