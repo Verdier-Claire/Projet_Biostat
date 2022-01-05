@@ -32,8 +32,7 @@ mort <- mort %>% rename("taux.deces" = rt,
                         "Maladie.Génito_urinaire" = r12, 
                         "Non.Definis" = r13, 
                         "Mort.Naturelle" = r14, 
-                        "Mort.Violente" = r15) %>%
-          select(-ï..)
+                        "Mort.Violente" = r15)
 mort$sex <- mort$sex %>% factor( labels = c("H", "F"))
 mort$periode <- mort$periode %>% factor( labels =c("43-47", "48-52",
                                                    "53-57", "58-62",
