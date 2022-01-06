@@ -56,7 +56,7 @@ Entre les années 1943 et 1948, 224 654 nourissons étaient de sexe masculin. 12
 
 Au vu de notre jeu de données, il semble évident que nous allons réaliser une enquète de cohorte. En effet, la principale caractéristique d'une enquète de cohorte est qu'elle permet de suivre les individus dans le temps sur une période donnée.
 
-De plus, nous savons que les résultats d'une enquète de cohorte peuvent être représentés sous 2 deux formes différentes. Ici, nous avons le cas où pour chaque combinaison de modalité des covariables, nous avons le nombre de décès observés pendant la période de suivie $[t_1,t_2]$ ainsi que le nombre de personnes-années correspondant.
+De plus, nous savons que les résultats d'une enquète de cohorte peuvent être représentés sous 2 deux formes différentes. Ici, nous avons le cas où pour chaque combinaison de modalité des covariables, nous avons le nombre de décès observés pendant la période de suivie $[t_1,t_2]$ ainsi que le nombre de personnes-années correspondant. Nous avons donc un tableau de morbidité. 
 
 Un individu pourra donc, au cours du suivi, contribuer aux personnes-années de différentes strates, si l'une au moins de ses covariables évolue au cours du temps.
 
