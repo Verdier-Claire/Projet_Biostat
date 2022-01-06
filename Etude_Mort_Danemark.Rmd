@@ -66,27 +66,72 @@ Au vu de notre grand nombre d'observations, on décide de se restraindre à la t
 ```{r}
 mort <- mort %>% filter((age >=18) & (age <=25))
 mort$age <- mort$age %>% factor()
+contrasts(mort$age)
 ```
 
 
 ## Modèle a choisir, lequel on fait (beaucoup de variables, avec pleins de catégories)
+
+## Etude du nombre de décès chez les danois de 18-25ans.
+```{r}
+ggplot(mort)+
+  geom_point(aes(x=age, y=nb.deces, color=sex))+
+  ggtitle("Nombre de décès chez les danois de 18-25ans")
+```
+Sur le graphique on constate que les jeunes danois sont plus touchés par la mort que les jeunes danoises.
+Regardons maintenant en fonction de la période :
+
+```{r}
+ggplot(mort)+
+  geom_point(aes(x=age, y=nb.deces, color=periode))+
+  ggtitle("Nombre de décès chez les danois de 18-25ans")
+```
+
 ```{r}
 mdoel_nb_deces<-glm(nb.deces ~ periode * sex * age,  offset = log(PA), family = "poisson", data = mort)
-mdoel_nb_deces
 summary(mdoel_nb_deces)
 ```
+Parmis la sous-strates 43-47, on fait la comparaison entre 2 sous strates :
 
+  • la sous-strate "18 ans et sexe=H" : le rapport $\frac{nb.decss}{pa}$ est $e^{-6.3}$
+  
+  • la sous-strate "18 ans et sexe=F" : le rapport $\frac{nb.decss}{pa}$ est $e^{-6.3}$x$e^{-0.35}$
+  
+Si on compare les deux dernieres sous-strates, le rapport d'incidence moyenne sexe feminin et sexe masculin, à âge fixé de 18 ans vaut $e{-0.35}=0.70$
+
+
+## Etude du nombre de décès par maladie de foie chez les danois de 18-25ans.
 
 ```{r}
-model_maladie.foie<-glm(Maladies.Foie ~ periode * sex * age,  offset = log(PA), family = "poisson", data = mort)
-model_maladie.foie
+ggplot(mort)+
+  geom_point(aes(x=age, y=Maladies.Foie, color=sex))+
+  ggtitle("Nombre de décès par maladies de foie chez les danois de 18-25ans")
+```
+On remarque que ce sont les danoises plus touchées par les maladies de foie.
+Regardons maintenant en focntion de la période :
+
+```{r}
+ggplot(mort)+
+  geom_point(aes(x=age, y=Maladies.Foie, color=periode))+
+  ggtitle("Nombre de décès chez les danois de 18-25ans")
+```
+De nouveau, on remarque que plus l'époque est lointaine, plus le nombre de décès à cause de problème liés au foie est élevé quel que soit l'âge des jeunes.
+
+Essayons donc maintenant d'expliquer le pourcentage de décès du aux maladies du foies en fonction de la période, du sexe et de l'âge des individus :
+```{r}
+model_maladie.foie<-glm(Maladies.Foie ~ periode * sex * age,  offset = log(PA),  data = mort)
 summary(model_maladie.foie)
 ```
+Parmis la sous-strates 43-47, on fait la comparaison entre 2 sous strates :
 
+  • la sous-strate "18 ans et sexe=H" : le rapport $\frac{Maladies.Foie}{pa}$ est $e^{-12}$
+  
+  • la sous-strate "18 ans et sexe=F" : le rapport $\frac{Maladies.Foie}{pa}$ est $e^{-12}$x$e^{0.02}$
+  
+Si on compare les deux dernieres sous-strates, le rapport d'incidence moyenne sexe feminin et sexe masculin, à âge fixé de 18 ans vaut $e{0.02}= 1.02$
 
 ```{r}
-model_mort.viol<-glm(Mort.Violente ~ periode * sex * age,  offset = log(PA), family = "poisson", data = mort)
-model_mort.viol
+model_mort.viol<-glm(Mort.Violente ~ periode * sex * age,  offset = log(PA), data = mort)
 summary(model_mort.viol)
 ```
 
