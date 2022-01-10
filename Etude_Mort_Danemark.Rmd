@@ -8,13 +8,18 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
+library(tidyverse)
 library(ggplot2)
+library(MASS)
+library(tinytex)
 ```
 
-Le Danemark est un pays scandinave. Pour ce pays, nous allons étudier les différentes causes de mortalités en fonction de l'âge des individus, de la période où elles sont mortes.
+Le Danemark est un pays scandinave. Pour ce pays, nous allons étudier
+les différentes causes de mortalités en fonction de l'âge des individus,
+de la période où elles sont mortes.
 
+# Explications du jeu de données
 
-# Explications du jeu de données 
 ```{r}
 mort <- read.csv("mortDK.csv", header = TRUE, sep = ";")
 mort <- mort %>% rename("taux.deces" = rt, 
@@ -31,62 +36,89 @@ mort <- mort %>% rename("taux.deces" = rt,
                         "Maladies.Digestives" = r11, 
                         "Maladie.Génito_urinaire" = r12, 
                         "Non.Definis" = r13, 
-                        "Mort.Naturelle" = r14, 
-                        "Mort.Violente" = r15)
+                        "Mort.Naturelle" = r14,
+                        "Mort.Violente" = r15) 
+
+mort$taux.deces <- mort$taux.deces %>% as.numeric()
+mort <- mort %>% filter(taux.deces <=100) # Certains taux de décès sont supérieurs à 100
 mort$sex <- mort$sex %>% factor( labels = c("H", "F"))
 mort$periode <- mort$periode %>% factor( labels =c("43-47", "48-52",
                                                    "53-57", "58-62",
                                                    "63-67", "68-72",
                                                    "73-77", "78-82",
                                                    "83-87", "88-92"))
+mort <- mort %>% filter((age >=18) & (age <=25)) %>% 
+  mutate("nb.Maladies.Foie" = round(Maladies.Foie*nb.deces), 
+         "nb.Mort.Violente" = round(Mort.Violente*nb.deces))
+mort <- mort %>%dplyr::select(age, periode, sex, PA, nb.deces, taux.deces, Maladies.Foie, 
+         Mort.Violente, nb.Maladies.Foie, nb.Mort.Violente)
 mort$age <- mort$age %>% factor()
+
 ```
 
-Le jeux de données est composé de 1820 observations et 21 variables. Ces 
-variables sont l'âge, le sexe, la période, le nombre de décès, le taux de décès 
-et 15 variables sur l'identification du décès. Lorsque qu'on parle 
-d'identification du décès, on parle si la personne est morte d'un cancer, 
-d'une mort naturelle, par exemple.  
+Le jeux de données est composé de 1820 observations et 21 variables. Ces
+variables sont l'âge, le sexe, la période, le nombre de décès, le taux
+de décès et 15 variables sur l'identification du décès. Lorsque qu'on
+parle d'identification du décès, on parle si la personne est morte d'un
+cancer, d'une mort naturelle, par exemple. On sélectionne les variables
+Maladies du foie et mort violente sur lesquels nous allons faire notre
+étude.
 
-La variable *taux.deces* est calculée d'après la formule suivante : 
-$$\mbox{taux.deces}=\frac{1000\times \mbox{nb.deces}}{PA}$$  
-Les 15 variables d'identification du décès sont calculés de la même manière.
+La variable *taux.deces* est calculée d'après la formule suivante :
+$$\mbox{taux.deces}=\frac{1000\times \mbox{nb.deces}}{PA}$$\
+Les 15 variables d'identification du décès sont calculés de la même
+manière.
 
-
-```{r}
-summary(mort)
-```
-
-\textcolor{green}{TODO : description du data avec stat descriptives ?}
+Voici un exemple de notre jeu de données.
 
 ```{r}
 head(mort)
 ```
 
-Entre les années 1943 et 1948, 224 654 nourissons étaient de sexe masculins. 12 072 d'entre eux sont morts. Ce qui représente environ 53 individus issus de cette catégorie sur 1000 sont morts sur cette période.  \textcolor{green}{TODO plus détailler une autre ligne}
+Entre les années 1943 et 1948, 156342 personnées agées de 18ans étaient
+de sexe masculins. 298 d'entre eux sont morts. Ce qui représente environ
+1.906 individus issus de cette catégorie sur 1000 sont morts sur cette
+période.\
+Pour la période 1943-1947, pour les hommes agé de 18ans ans, le risque
+de mourir d'une mort violente est de 0.991 et pour les femmes de cet âge
+sur cette période, ce risque est de 0.287.
 
+```{r}
+# summary(mort)
+ggplot(mort, aes( y=taux.deces, fill=sex))+ 
+  geom_boxplot(aes(x=periode))+
+  ggtitle("Le pourcentage de décès par période et sexe")+
+  ylab("Pourcentage de décès")
+
+```
+
+Le graphique de taux de décès par période et par sexe nous montre une
+grande différence entre les hommes et les femmes pour chaque année. De
+plus, il semblerait que le taux de décès était largement supérieur pour
+la période de 1943-1947. On peut se demander si cela est du à la seconde
+guerre mondiale.
 
 ## Modèle a choisir, lequel on fait (beaucoup de variables, avec pleins de catégories)
+
 ### Modalité de référence
+
 ```{r}
-# contrasts(mort$age)
-contrasts((mort$periode))
+contrasts(mort$age)
+contrasts(mort$periode)
 contrasts(mort$sex)
 ```
 
-La modalité de référence est l'âge zéro. La modalité de référence pour la
-période temporelle est entre 1943 et 1947. Enfin la modalité de référence au 
-niveau sexe est l'homme.  \textcolor{green}{TODO changer la modalité de ref de 
-l'âge}
+La modalité de référence est l'âge 18ans. La modalité de référence pour
+la période temporelle est entre 1943 et 1947. Enfin la modalité de
+référence au niveau sexe est l'homme.
 
-\textcolor{green}{TODO choisir un modèle}
 ```{r}
 # glm(nb.deces ~ periode * sex * age,  offset = log(PA), data = mort)
 # glm(Infections ~ periode * sex * age,  offset = log(PA), data = mort)
 # glm(Cancer ~ periode * sex * age,  offset = log(PA), data = mort)
 # glm(Tumeurs.Bénignes ~ periode * sex * age,  offset = log(PA), data = mort)
-endocrine <- glm(Endocrine ~ periode + sex + age,  offset = log(PA), 
-                 data = mort)
+#endocrine <- glm(Endocrine ~ periode + sex + age,  offset = log(PA), 
+#                 data = mort)
 # glm(Maladies.Sang ~ periode * sex * age,  offset = log(PA), data = mort)
 # glm(Cerebrovasculaire ~ periode * sex * age,  offset = log(PA), data = mort)
 # glm(Cardiaque ~ periode * sex * age,  offset = log(PA), data = mort)
@@ -95,8 +127,43 @@ endocrine <- glm(Endocrine ~ periode + sex + age,  offset = log(PA),
 # glm(Maladies.Digestives ~ periode * sex * age,  offset = log(PA), data = mort)
 # glm(Maladie.Génito_urinaire ~ periode * sex * age,  offset = log(PA), data = mort)
 # glm(Non.Definis ~ periode * sex * age,  offset = log(PA), data = mort)
-# glm(Mort.Naturelle ~ periode * sex * age,  offset = log(PA), data = mort)
-# glm(Mort.Violente ~ periode * sex * age,  offset = log(PA), data = mort)
-
+ggplot(mort)+
+  geom_point(aes(x=age, y= Maladies.Foie, color=periode))
 ```
 
+## Etude des morts violentes chez les 18-25ans danois
+
+Lorsqu'on parle de morts violentes, on fait souvent allusion à des décès
+par traumatisme ou empoisonnement accidentels, par suicide ou par
+homicide. Regardons tout d'abord un graphique en fonction du sexe de la
+personne.
+
+```{r}
+ ggplot(mort)+ 
+  geom_point(aes(x=age, y=Mort.Violente,  color=sex))+
+  ggtitle("Morts violentes en fonction de l'âge")
+```
+
+Sur ce graphique, on voit clairement une différence entre les hommes et
+les femmes par rapport aux morts violentes.
+
+```{r}
+model_nb_deces<-glm(nb.Mort.Violente ~ periode * sex * age,  offset = log(PA), 
+                    family = "poisson", data = mort)
+#model_nb_deces
+summary(model_nb_deces)
+```
+
+```{r}
+glm.update <- update(model_nb_deces)
+summary(stepAIC(glm.update))
+```
+
+Parmi la strate 43-47, on fait la comparaison entre deux sous-strates :\
+- Pour la sous-strate "âge 18ans et sex=H", le rapport
+$\frac{Mort.violentes}{pa}$ est $e^{-6.27}$\
+- Pour la sous-strate "âge 18ans et sex=F", le rapport
+$\frac{Mort.violentes}{pa}$ est $e^{-6.27}e^{-1.62}$ .\
+Si on compare les deux dernières sous-strate :\
+Le rapport d'incidence moyenne est entre le sexe masculin et le sexe
+féminin, à âge fixé à 18 ans est de $e^{-1.62}= 0.1977195$.
