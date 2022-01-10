@@ -151,7 +151,7 @@ les femmes par rapport aux morts violentes.
 model_nb_deces<-glm(nb.Mort.Violente ~ periode * sex * age,  offset = log(PA), 
                     family = "poisson", data = mort)
 #model_nb_deces
-summary(model_nb_deces)
+#summary(model_nb_deces)
 ```
 
 ```{r}
