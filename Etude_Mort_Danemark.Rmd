@@ -118,8 +118,11 @@ ggplot(mort)+
 De nouveau, on remarque que plus l'époque est lointaine, plus le nombre de décès à cause de problème liés au foie est élevé quel que soit l'âge des jeunes.
 
 Essayons donc maintenant d'expliquer le pourcentage de décès du aux maladies du foies en fonction de la période, du sexe et de l'âge des individus :
+
+On change le taux en nombre :
 ```{r}
-model_maladie.foie<-glm(Maladies.Foie ~ periode * sex * age,  offset = log(PA),  data = mort)
+mort <- mutate(mort,nb.maladies.foie = (Maladies.Foie*PA)/1000)
+model_maladie.foie<-glm(nb.maladies.foie ~ periode * sex * age,  offset = log(PA),  family = "poisson", data = mort)
 summary(model_maladie.foie)
 ```
 Parmis la sous-strates 43-47, on fait la comparaison entre 2 sous strates :
