@@ -42,7 +42,7 @@ mort <- mort %>% rename("taux.deces" = rt,
 mort$taux.deces <- mort$taux.deces %>% as.numeric()
 mort <- mort %>% filter(taux.deces <=100) # Certains taux de décès sont supérieurs à 100
 
-#mort <- mort %>% select(-X)
+
 mort$sex <- mort$sex %>% factor( labels = c("H", "F"))
 mort$periode <- mort$periode %>% factor( labels =c("43-47", "48-52",
                                                    "53-57", "58-62",
@@ -96,7 +96,6 @@ ggplot(mort, aes( y=taux.deces, fill=sex))+
 ```
 
 
-
 Entre les années 1943 et 1948, 224 654 nourissons étaient de sexe masculin. 12 072 d'entre eux sont morts. Ce qui représente environ 53 individus issus de cette catégorie sur 1000 sont morts sur cette période. 
 
 Au vu de notre jeu de données, il semble évident que nous allons réaliser une enquète de cohorte. En effet, la principale caractéristique d'une enquète de cohorte est qu'elle permet de suivre les individus dans le temps sur une période donnée.
@@ -116,7 +115,6 @@ plus, il semblerait que le taux de décès était largement supérieur pour
 la période de 1943-1947. On peut se demander si cela est du à la seconde
 guerre mondiale.
 
-## Modèle a choisir, lequel on fait (beaucoup de variables, avec pleins de catégories)
 
 ### Modalité de référence
 
@@ -126,14 +124,30 @@ contrasts(mort$periode)
 contrasts(mort$sex)
 ```
 
-La modalité de référence est l'âge 18ans. La modalité de référence pour
+La modalité de référence de  l'âge est 18ans. La modalité de référence pour
 la période temporelle est entre 1943 et 1947. Enfin la modalité de
 référence au niveau sexe est l'homme.
 
-```{r}
-ggplot(mort)+
-  geom_point(aes(x=age, y= Maladies.Foie, color=periode))
-```
+
+Au vu de notre grand nombre de type de décès, on décide de se concentrer sur 3 modèles : celui avec le nombre de décès, celui par décès de maladies du foie et enfin celui par mort violente.
+
+## Etude du nombre de décès chez les jeunes de 18-25ans.
+# ```{r}
+# mdoel_nb_deces<-glm(nb.deces ~ periode * sex * age,  offset = log(PA), family = "poisson", data = mort)
+# #summary(mdoel_nb_deces)
+# ```
+# 
+# ```{r}
+# glm.update <- update(mdoel_nb_deces)
+# summary(stepAIC(glm.update))
+# ```
+
+
+Parmis la sous-strates 43-47, on fait la comparaison entre 2 sous strates :\
+-la sous-strate "18 ans et sexe=H" : le rapport $\frac{nb.decss}{pa}$ est $e^{-6.24}$ \
+-la sous-strate "18 ans et sexe=F" : le rapport $\frac{nb.decss}{pa}$ est $e^{-6.24}$x$e^{-0.40}$
+  
+Si on compare les deux dernieres sous-strates, le rapport d'incidence moyenne sexe feminin et sexe masculin, à âge fixé de 18 ans vaut $e^{-0.35}=0.67032$
 
 ## Etude des morts violentes chez les 18-25ans danois
 
@@ -174,24 +188,38 @@ Le rapport d'incidence moyenne est entre le sexe masculin et le sexe
 féminin, à âge fixé à 18 ans est de $e^{-1.62}= 0.1977195$.
 
 
-## Modèle nb décès 
+## Etude des maladies du foie chez les jeunes de 18/25 ans
+
 ```{r}
-mdoel_nb_deces<-glm(nb.deces ~ periode * sex * age,  offset = log(PA), family = "poisson", data = mort)
-mdoel_nb_deces
-summary(mdoel_nb_deces)
+#ggplot(mort)+
+#  geom_point(aes(x=age, y=Maladies.Foie, color=sex))+
+#  ggtitle("Nombre de décès par maladies de foie chez les danois de 18-25ans")
+```
+On remarque que ce sont les danoises plus touchées par les maladies de foie.
+Regardons maintenant en focntion de la période :
+```{r}
+#ggplot(mort)+
+#  geom_point(aes(x=age, y=Maladies.Foie, color=periode))+
+#  ggtitle("Nombre de décès chez les danois de 18-25ans")
 ```
 
 
-```{r}
-model_maladie.foie<-glm(Maladies.Foie ~ periode * sex * age,  offset = log(PA), family = "poisson", data = mort)
-model_maladie.foie
-summary(model_maladie.foie)
-```
-
 
 ```{r}
-model_mort.viol<-glm(Mort.Violente ~ periode * sex * age,  offset = log(PA), family = "poisson", data = mort)
-model_mort.viol
-summary(model_mort.viol)
+#model_maladie.foie<-glm(nb.Maladies.Foie ~ periode * sex * age,  offset = log(PA), 
+                        #family = "poisson", 
+                        #data = mort)
+#model_maladie.foie
+#summary(model_maladie.foie)
+
+#glm.update <- update(model_maladie.foie)
+#summary(stepAIC(glm.update))
 ```
+Parmis la sous-strates 43-47, on fait la comparaison entre 2 sous strates :\
+-la sous-strate "18 ans et sexe=H" : le rapport $\frac{nb.maladies.foie}{pa}$ est $e^{-30.43}$\
+-la sous-strate "18 ans et sexe=F" : le rapport $\frac{nb.decss}{pa}$ est $e^{-30.43}$x$e^{17.80}$
+  
+Si on compare les deux dernieres sous-strates, le rapport d'incidence moyenne sexe feminin et sexe masculin, à âge fixé de 18 ans vaut $e^{17.80}=53757836$
+
+
 
