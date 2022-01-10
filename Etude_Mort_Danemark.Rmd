@@ -36,23 +36,33 @@ mort <- mort %>% rename("taux.deces" = rt,
                         "Maladies.Digestives" = r11, 
                         "Maladie.Génito_urinaire" = r12, 
                         "Non.Definis" = r13, 
+<<<<<<< HEAD
                         "Mort.Naturelle" = r14,
                         "Mort.Violente" = r15) 
 
 mort$taux.deces <- mort$taux.deces %>% as.numeric()
 mort <- mort %>% filter(taux.deces <=100) # Certains taux de décès sont supérieurs à 100
+=======
+                        "Mort.Naturelle" = r14, 
+                        "Mort.Violente" = r15)
+mort <- mort %>% select(-X)
+>>>>>>> Lucie
 mort$sex <- mort$sex %>% factor( labels = c("H", "F"))
 mort$periode <- mort$periode %>% factor( labels =c("43-47", "48-52",
                                                    "53-57", "58-62",
                                                    "63-67", "68-72",
                                                    "73-77", "78-82",
                                                    "83-87", "88-92"))
+<<<<<<< HEAD
 mort <- mort %>% filter((age >=18) & (age <=25)) %>% 
   mutate("nb.Maladies.Foie" = round(Maladies.Foie*nb.deces), 
          "nb.Mort.Violente" = round(Mort.Violente*nb.deces))
 mort <- mort %>%dplyr::select(age, periode, sex, PA, nb.deces, taux.deces, Maladies.Foie, 
          Mort.Violente, nb.Maladies.Foie, nb.Mort.Violente)
 mort$age <- mort$age %>% factor()
+=======
+
+>>>>>>> Lucie
 
 ```
 
@@ -90,6 +100,23 @@ ggplot(mort, aes( y=taux.deces, fill=sex))+
   ggtitle("Le pourcentage de décès par période et sexe")+
   ylab("Pourcentage de décès")
 
+<<<<<<< HEAD
+=======
+Entre les années 1943 et 1948, 224 654 nourissons étaient de sexe masculin. 12 072 d'entre eux sont morts. Ce qui représente environ 53 individus issus de cette catégorie sur 1000 sont morts sur cette période. 
+
+Au vu de notre jeu de données, il semble évident que nous allons réaliser une enquète de cohorte. En effet, la principale caractéristique d'une enquète de cohorte est qu'elle permet de suivre les individus dans le temps sur une période donnée.
+
+De plus, nous savons que les résultats d'une enquète de cohorte peuvent être représentés sous 2 deux formes différentes. Ici, nous avons le cas où pour chaque combinaison de modalité des covariables, nous avons le nombre de décès observés pendant la période de suivie $[t_1,t_2]$ ainsi que le nombre de personnes-années correspondant. Nous avons un tableau de morbidité. 
+
+Un individu pourra donc, au cours du suivi, contribuer aux personnes-années de différentes strates, si l'une au moins de ses covariables évolue au cours du temps.
+
+Notre objectif est donc de déterminer si les covariables *âge, sexe* et *période* ont un effets sur les différentes causes de mortalité. Nous utiliserons des modèle de Poisson. 
+
+Au vu de notre grand nombre d'observations, on décide de se restraindre à la tranche des 18-25ans.
+```{r}
+mort <- mort %>% filter((age >=18) & (age <=25))
+mort$age <- mort$age %>% factor()
+>>>>>>> Lucie
 ```
 
 Le graphique de taux de décès par période et par sexe nous montre une
@@ -113,6 +140,7 @@ la période temporelle est entre 1943 et 1947. Enfin la modalité de
 référence au niveau sexe est l'homme.
 
 ```{r}
+<<<<<<< HEAD
 # glm(nb.deces ~ periode * sex * age,  offset = log(PA), data = mort)
 # glm(Infections ~ periode * sex * age,  offset = log(PA), data = mort)
 # glm(Cancer ~ periode * sex * age,  offset = log(PA), data = mort)
@@ -157,6 +185,25 @@ model_nb_deces<-glm(nb.Mort.Violente ~ periode * sex * age,  offset = log(PA),
 ```{r}
 glm.update <- update(model_nb_deces)
 summary(stepAIC(glm.update))
+=======
+mdoel_nb_deces<-glm(nb.deces ~ periode * sex * age,  offset = log(PA), family = "poisson", data = mort)
+mdoel_nb_deces
+summary(mdoel_nb_deces)
+```
+
+
+```{r}
+model_maladie.foie<-glm(Maladies.Foie ~ periode * sex * age,  offset = log(PA), family = "poisson", data = mort)
+model_maladie.foie
+summary(model_maladie.foie)
+```
+
+
+```{r}
+model_mort.viol<-glm(Mort.Violente ~ periode * sex * age,  offset = log(PA), family = "poisson", data = mort)
+model_mort.viol
+summary(model_mort.viol)
+>>>>>>> Lucie
 ```
 
 Parmi la strate 43-47, on fait la comparaison entre deux sous-strates :\
