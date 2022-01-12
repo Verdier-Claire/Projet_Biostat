@@ -69,10 +69,10 @@ manière.
 Puisque nous avons un très grand nombre de type de mort, on décide de se contrer sur un seul type : les morts violentes. De plus comme dis plus haut, le mode de l'âge est très élévé, on décide donc de se réduire aux individus entre 18 et 25 ans.
 
 ```{r}
-mort <- mort %>% filter((age >=18) & (age <=25)) %>% 
+mort <- mort %>% filter((age >=65) & (age <=84)) %>% 
   mutate( "nb.Mort.Violente" = round(Mort.Violente*nb.deces))
-mort <- mort %>%dplyr::select(age, periode, sex, PA, nb.deces, taux.deces, Maladies.Foie, 
-         Mort.Violente, nb.Mort.Violente)
+# mort <- mort %>%dplyr::select(age, periode, sex, PA, nb.deces, taux.deces, Maladies.Foie, 
+         # Mort.Violente, nb.Mort.Violente)
 mort$age <- mort$age %>% factor()
 
 ```
@@ -94,7 +94,7 @@ sur cette période, ce risque est de 0.287.
 
 Voici un graph qui résument notre taux de décès en fonction du sexe et de la période dans notre jeu
 ```{r}
-ggplot(mort, aes( y=taux.deces, fill=sex))+ 
+ggplot(mort, aes( y=Cancer, fill=sex))+ 
   geom_boxplot(aes(x=periode))+
   ggtitle("Le pourcentage de décès par période et sexe")+
   ylab("Pourcentage de décès")
@@ -122,7 +122,16 @@ Pour pouvoir effectuer nos comparaisons, on doit d'abord connaître nos modalit�
 
 ```{r}
 contrasts(mort$age)
+```
+
+
+```{r}
+mort$periode <- relevel(mort$periode, ref = "88-92")
 contrasts(mort$periode)
+```
+
+
+```{r}
 contrasts(mort$sex)
 ```
 
@@ -133,15 +142,15 @@ référence au niveau sexe est l'homme.
 
 
 ## Etude du nombre de décès chez les jeunes de 18-25ans.
-# ```{r}
-# mdoel_nb_deces<-glm(nb.deces ~ periode * sex * age,  offset = log(PA), family = "poisson", data = mort)
-# #summary(mdoel_nb_deces)
-# ```
-# 
-# ```{r}
-# glm.update <- update(mdoel_nb_deces)
-# summary(stepAIC(glm.update))
-# ```
+<!-- # ```{r} -->
+<!-- # mdoel_nb_deces<-glm(nb.deces ~ periode * sex * age,  offset = log(PA), family = "poisson", data = mort) -->
+<!-- # #summary(mdoel_nb_deces) -->
+<!-- # ``` -->
+<!-- #  -->
+<!-- # ```{r} -->
+<!-- # glm.update <- update(mdoel_nb_deces) -->
+<!-- # summary(stepAIC(glm.update)) -->
+<!-- # ``` -->
 
 
 Parmis la sous-strates 43-47, on fait la comparaison entre 2 sous strates :\
@@ -159,7 +168,7 @@ personne.
 
 ```{r}
  ggplot(mort)+ 
-  geom_point(aes(x=age, y=Mort.Violente,  color=sex))+
+  geom_point(aes(x=age, y=Cancer,  color=sex))+
   ggtitle("Morts violentes en fonction de l'âge")
 ```
 
@@ -181,9 +190,9 @@ summary(stepAIC(glm.update))
 
 Parmi la strate 43-47, on fait la comparaison entre deux sous-strates :\
 - Pour la sous-strate "âge 18ans et sex=H", le rapport
-$\frac{Mort.violentes}{pa}$ est $e^{-6.27}$\
+$\frac{\mbox{Mort.violentes}}{\mbox{PA}}$ est $e^{-6.27}$\
 - Pour la sous-strate "âge 18ans et sex=F", le rapport
-$\frac{Mort.violentes}{pa}$ est $e^{-6.27}e^{-1.62}$ .\
+$\frac{\mbox{Mort.violentes}}{\mbox{PA}}$ est $e^{-6.27}e^{-1.62}$ .\
 Si on compare les deux dernières sous-strate :\
 Le rapport d'incidence moyenne est entre le sexe masculin et le sexe
 féminin, à âge fixé à 18 ans est de $e^{-1.62}= 0.1977195$.
@@ -217,8 +226,8 @@ Regardons maintenant en focntion de la période :
 #summary(stepAIC(glm.update))
 ```
 Parmis la sous-strates 43-47, on fait la comparaison entre 2 sous strates :\
--la sous-strate "18 ans et sexe=H" : le rapport $\frac{nb.maladies.foie}{pa}$ est $e^{-30.43}$\
--la sous-strate "18 ans et sexe=F" : le rapport $\frac{nb.decss}{pa}$ est $e^{-30.43}$x$e^{17.80}$
+-la sous-strate "18 ans et sexe=H" : le rapport $\frac{nb.maladies.foie}{\mbox{pa}}$ est $e^{-30.43}$\
+-la sous-strate "18 ans et sexe=F" : le rapport $\frac{nb.decss}{\mbox{pa}}$ est $e^{-30.43}$x$e^{17.80}$
   
 Si on compare les deux dernieres sous-strates, le rapport d'incidence moyenne sexe feminin et sexe masculin, à âge fixé de 18 ans vaut $e^{17.80}=53757836$
 
