@@ -18,7 +18,7 @@ Le Danemark est un pays scandinave. Pour ce pays, nous allons étudier
 les différentes causes de mortalités en fonction de l'âge des individus,
 de la période où elles sont mortes.
 
-# Explications du jeu de données
+# Explications du jeu de données et nettoyages
 
 ```{r}
 mort <- read.csv("mortDK.csv", header = TRUE, sep = ";")
@@ -50,29 +50,34 @@ mort$periode <- mort$periode %>% factor( labels =c("43-47", "48-52",
                                                    "73-77", "78-82",
                                                    "83-87", "88-92"))
 
-mort <- mort %>% filter((age >=18) & (age <=25)) %>% 
-  mutate("nb.Maladies.Foie" = round(Maladies.Foie*nb.deces), 
-         "nb.Mort.Violente" = round(Mort.Violente*nb.deces))
-mort <- mort %>%dplyr::select(age, periode, sex, PA, nb.deces, taux.deces, Maladies.Foie, 
-         Mort.Violente, nb.Maladies.Foie, nb.Mort.Violente)
-mort$age <- mort$age %>% factor()
-
+summary(mort)
 ```
 
 Le jeux de données est composé de 1820 observations et 21 variables. Ces
 variables sont l'âge, le sexe, la période, le nombre de décès, le taux
 de décès et 15 variables sur l'identification du décès. Lorsque qu'on
 parle d'identification du décès, on parle si la personne est morte d'un
-cancer, d'une mort naturelle, par exemple. On sélectionne les variables
-Maladies du foie et mort violente sur lesquels nous allons faire notre
-étude.
+cancer, d'une mort naturelle, par exemple. 
+
+On peut voir que la période sur laquelle s'éteint cette étude est très longue, environ sur 50 ans. Le mode de l'âge est très élévé également, on a des individus de 0 ans jusqu'à 84 ans.
 
 La variable *taux.deces* est calculée d'après la formule suivante :
 $$\mbox{taux.deces}=\frac{1000\times \mbox{nb.deces}}{PA}$$\
 Les 15 variables d'identification du décès sont calculés de la même
 manière.
 
-Voici un exemple de notre jeu de données.
+Puisque nous avons un très grand nombre de type de mort, on décide de se contrer sur un seul type : les morts violentes. De plus comme dis plus haut, le mode de l'âge est très élévé, on décide donc de se réduire aux individus entre 18 et 25 ans.
+
+```{r}
+mort <- mort %>% filter((age >=18) & (age <=25)) %>% 
+  mutate( "nb.Mort.Violente" = round(Mort.Violente*nb.deces))
+mort <- mort %>%dplyr::select(age, periode, sex, PA, nb.deces, taux.deces, Maladies.Foie, 
+         Mort.Violente, nb.Mort.Violente)
+mort$age <- mort$age %>% factor()
+
+```
+
+Voici un exemple de notre nouveau jeu de données.
 
 ```{r}
 head(mort)
@@ -86,8 +91,9 @@ Pour la période 1943-1947, pour les hommes agé de 18ans ans, le risque
 de mourir d'une mort violente est de 0.991 et pour les femmes de cet âge
 sur cette période, ce risque est de 0.287.
 
+
+Voici un graph qui résument notre taux de décès en fonction du sexe et de la période dans notre jeu
 ```{r}
-# summary(mort)
 ggplot(mort, aes( y=taux.deces, fill=sex))+ 
   geom_boxplot(aes(x=periode))+
   ggtitle("Le pourcentage de décès par période et sexe")+
@@ -96,7 +102,10 @@ ggplot(mort, aes( y=taux.deces, fill=sex))+
 ```
 
 
-Entre les années 1943 et 1948, 224 654 nourissons étaient de sexe masculin. 12 072 d'entre eux sont morts. Ce qui représente environ 53 individus issus de cette catégorie sur 1000 sont morts sur cette période. 
+On peut remarquer que les hommes ont plus tendance à mourir que les femmes quelles que soit les périodes. Plus on se rapproche de notre période actuelle, plus le taux de décès se stabilise chez les individus. De plus, le taux de décès assez élévé pendant la période 43/47 peut s'expliquer par la présence de guerre.
+
+
+# Le modèle utilisé
 
 Au vu de notre jeu de données, il semble évident que nous allons réaliser une enquète de cohorte. En effet, la principale caractéristique d'une enquète de cohorte est qu'elle permet de suivre les individus dans le temps sur une période donnée.
 
@@ -106,17 +115,10 @@ Un individu pourra donc, au cours du suivi, contribuer aux personnes-années de 
 
 Notre objectif est donc de déterminer si les covariables *âge, sexe* et *période* ont un effets sur les différentes causes de mortalité. Nous utiliserons des modèle de Poisson. 
 
-Au vu de notre grand nombre d'observations, on décide de se restraindre à la tranche des 18-25ans.
 
+## Modalité de référence
 
-Le graphique de taux de décès par période et par sexe nous montre une
-grande différence entre les hommes et les femmes pour chaque année. De
-plus, il semblerait que le taux de décès était largement supérieur pour
-la période de 1943-1947. On peut se demander si cela est du à la seconde
-guerre mondiale.
-
-
-### Modalité de référence
+Pour pouvoir effectuer nos comparaisons, on doit d'abord connaître nos modalités de références :
 
 ```{r}
 contrasts(mort$age)
@@ -129,7 +131,6 @@ la période temporelle est entre 1943 et 1947. Enfin la modalité de
 référence au niveau sexe est l'homme.
 
 
-Au vu de notre grand nombre de type de décès, on décide de se concentrer sur 3 modèles : celui avec le nombre de décès, celui par décès de maladies du foie et enfin celui par mort violente.
 
 ## Etude du nombre de décès chez les jeunes de 18-25ans.
 # ```{r}
