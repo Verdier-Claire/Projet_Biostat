@@ -188,14 +188,29 @@ model_nb_deces
 <!-- ``` -->
 
 
-Parmi la strate 43-47, on fait la comparaison entre deux sous-strates :\
-- Pour la sous-strate "âge 18ans et sex=H", le rapport
-$\frac{\mbox{Mort.violentes}}{\mbox{PA}}$ est $e^{-6.27}$\
-- Pour la sous-strate "âge 18ans et sex=F", le rapport
-$\frac{\mbox{Mort.violentes}}{\mbox{PA}}$ est $e^{-6.27}e^{-1.62}$ .\
+Pour la période de 1988 à 1992 et parmi les hommes, on fait la comparaison entre deux sous-strates de l'âge :\
+- Pour la sous-strate des individus agés de 65 ans, le rapport
+$\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-1.22}$\
+- Pour la sous-strate des individus masculins, agés de 78 ans, le rapport
+$\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-1.22}e^{2.14}$ .\
 Si on compare les deux dernières sous-strate :\
-Le rapport d'incidence moyenne est entre le sexe masculin et le sexe
-féminin, à âge fixé à 18 ans est de $e^{-1.62}= 0.1977195$.
+Dans les années 1998-1992, le rapport d'incidence moyenne du cancer entre les indivus âgés de 65 ans et ceux âgés de 78 ans est de $e^{2.14}= 8.5$.  
+
+Pour la période de 1988 à 1992 et parmi les personnes âgées de 65 ans, on fait la comparaison entre deux sous-strates de l'âge :\
+- Pour la sous-strate des individus agés de 65 ans et de sexe masculin, le rapport
+$\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-1.22}$\
+- Pour la sous-strate des individus féminins âgés de 65 ans, le rapport
+$\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-1.22}e^{-0.72}$ .\
+Si on compare les deux dernières sous-strate :\
+Dans les années 1998-1992, le rapport d'incidence moyenne du cancer entre les indivus âgés de 65 ans masculins et féminins est de $e^{2.14}= 0.49$.  
+
+Parmi les hommes âgés de 65ans, on fait la comparaison entre deux sous-strates de l'âge :\
+- Pour la sous-strate des individus masculins âgés de 65 ans dans les années de 1988 à 1992, le rapport
+$\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-1.22}$\
+- Pour la sous-strate des individus masculins, âgés de 65 ans dans les années 1943-1947, le rapport
+$\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-1.22}e^{-0.53}$ .\
+Si on compare les deux dernières sous-strate :\
+Parmi les hommes âgés de 65ans, le rapport d'incidence moyenne du cancer entre la période 1988-1992 et celle de 1943-1947 est de $e^{ -0.53}= 0.59$.
 
 
 ## Etude des maladies du foie chez les jeunes de 18/25 ans
