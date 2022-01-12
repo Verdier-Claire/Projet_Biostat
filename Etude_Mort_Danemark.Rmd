@@ -69,8 +69,8 @@ manière.
 Puisque nous avons un très grand nombre de type de mort, on décide de se contrer sur un seul type : les morts violentes. De plus comme dis plus haut, le mode de l'âge est très élévé, on décide donc de se réduire aux individus entre 18 et 25 ans.
 
 ```{r}
-mort <- mort %>% filter((age >=65) & (age <=84)) %>% 
-  mutate( "nb.Mort.Violente" = round(Mort.Violente*nb.deces))
+mort <- mort %>% filter((age >=65) & (age <=79)) %>% 
+  mutate( "nb.Cancer" = round(Cancer*nb.deces))
 # mort <- mort %>%dplyr::select(age, periode, sex, PA, nb.deces, taux.deces, Maladies.Foie, 
          # Mort.Violente, nb.Mort.Violente)
 mort$age <- mort$age %>% factor()
@@ -168,7 +168,7 @@ personne.
 
 ```{r}
  ggplot(mort)+ 
-  geom_point(aes(x=age, y=Cancer,  color=sex))+
+  geom_point(aes(x=age, y=nb.Cancer,  color=sex))+
   ggtitle("Morts violentes en fonction de l'âge")
 ```
 
@@ -176,16 +176,16 @@ Sur ce graphique, on voit clairement une différence entre les hommes et
 les femmes par rapport aux morts violentes.
 
 ```{r}
-model_nb_deces<-glm(nb.Mort.Violente ~ periode * sex * age,  offset = log(PA), 
+model_nb_deces<-glm(nb.Cancer ~ periode * sex * age,  offset = log(PA), 
                     family = "poisson", data = mort)
-#model_nb_deces
-#summary(model_nb_deces)
+model_nb_deces
+# summary(model_nb_deces)
 ```
 
-```{r}
-glm.update <- update(model_nb_deces)
-summary(stepAIC(glm.update))
-```
+<!-- ```{r} -->
+<!-- glm.update <- update(model_nb_deces) -->
+<!-- summary(stepAIC(glm.update)) -->
+<!-- ``` -->
 
 
 Parmi la strate 43-47, on fait la comparaison entre deux sous-strates :\
