@@ -12,6 +12,7 @@ library(tidyverse)
 library(ggplot2)
 library(MASS)
 library(tinytex)
+library(patchwork)
 ```
 
 Le Danemark est un pays scandinave. Pour ce pays, nous allons étudier
@@ -50,7 +51,6 @@ mort$periode <- mort$periode %>% factor( labels =c("43-47", "48-52",
                                                    "73-77", "78-82",
                                                    "83-87", "88-92"))
 
-summary(mort)
 ```
 
 Le jeux de données est composé de 1820 observations et 21 variables. Ces
@@ -66,11 +66,11 @@ $$\mbox{taux.deces}=\frac{1000\times \mbox{nb.deces}}{PA}$$\
 Les 15 variables d'identification du décès sont calculés de la même
 manière.
 
-Puisque nous avons un très grand nombre de type de mort, on décide de se contrer sur un seul type : les morts violentes. De plus comme dis plus haut, le mode de l'âge est très élévé, on décide donc de se réduire aux individus entre 18 et 25 ans.
+Puisque nous avons un très grand nombre de type de mort, on décide de se contrer sur un seul type : les morts par cancer. De plus comme dis plus haut, le mode de l'âge est très élévé, on décide donc de se réduire aux individus entre 65 et 79 ans.
 
 ```{r}
 mort <- mort %>% filter((age >=65) & (age <=79)) %>% 
-  mutate( "nb.Cancer" = round(Cancer*nb.deces))
+  mutate( "nb.Cancer" = round((Cancer*nb.deces)/1000))
 # mort <- mort %>%dplyr::select(age, periode, sex, PA, nb.deces, taux.deces, Maladies.Foie, 
          # Mort.Violente, nb.Mort.Violente)
 mort$age <- mort$age %>% factor()
@@ -92,13 +92,28 @@ de mourir d'une mort violente est de 0.991 et pour les femmes de cet âge
 sur cette période, ce risque est de 0.287.
 
 
-Voici un graph qui résument notre taux de décès en fonction du sexe et de la période dans notre jeu
+Voici plusieurs graphs qui résument notre taux de décès en fonction du sexe et de la période dans notre jeu
 ```{r}
-ggplot(mort, aes( y=Cancer, fill=sex))+ 
+g1 <- ggplot(mort, aes( y=Cancer, fill=sex))+ 
   geom_boxplot(aes(x=periode))+
-  ggtitle("Le pourcentage de décès par période et sexe")+
+  ggtitle("Le pourcentage de décès par Cancer par période et sexe")+
   ylab("Pourcentage de décès")
 
+
+g2 <- ggplot(mort)+ 
+  geom_point(aes(x=periode, y=nb.Cancer,  color=age))+
+  ggtitle("Nombre de mort par cancer en fonction de l'âge")
+
+
+g3 <- ggplot(mort)+ 
+  geom_bar(aes(x=age, y=nb.Cancer,  fill=sex),
+           stat="identity", 
+           position=position_dodge())+
+  ggtitle("Nombre de mort par cancer en fonction de l'âge")
+
+g1
+g2
+g3
 ```
 
 
@@ -152,16 +167,9 @@ référence au niveau sexe est l'homme.
 
 ## Etude du nombre de morts par le Cancer chez les personnes âgés de 65-79ans.
 
-Lorsqu'on parle de morts violentes, on fait souvent allusion à des décès
-par traumatisme ou empoisonnement accidentels, par suicide ou par
-homicide. Regardons tout d'abord un graphique en fonction du sexe de la
-personne.
 
-```{r}
- ggplot(mort)+ 
-  geom_point(aes(x=age, y=nb.Cancer,  color=sex))+
-  ggtitle("Morts violentes en fonction de l'âge")
-```
+
+
 
 Sur ce graphique, on voit clairement une différence entre les hommes et
 les femmes par rapport aux morts violentes.
@@ -175,30 +183,32 @@ model_nb_deces
 
 
 Pour la période de 1988 à 1992 et parmi les hommes, on fait la comparaison entre deux sous-strates de l'âge :\
-- Pour la sous-strate des individus agés de 65 ans, le rapport
-$\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-1.22}$\
+- Pour la sous-strate des individus masculins agés de 65 ans, le rapport
+$\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-8.12}$\
 - Pour la sous-strate des individus masculins, agés de 78 ans, le rapport
-$\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-1.22}e^{2.14}$ .\
+$\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-8.12}e^{2.13}$ .\
 Si on compare les deux dernières sous-strate :\
-Dans les années 1998-1992, le rapport d'incidence moyenne du cancer entre les indivus âgés de 65 ans et ceux âgés de 78 ans est de $e^{2.14}= 8.5$.  
+Dans les années 1998-1992, le rapport d'incidence moyenne du cancer entre les indivus âgés de 65 ans et ceux âgés de 78 ans est de $e^{2.13}= 8.4$.  
 
 
-Pour la période de 1988 à 1992 et parmi les personnes âgées de 65 ans, on fait la comparaison entre deux sous-strates de l'âge :\
+Pour la période de 1988 à 1992 et parmi les personnes âgées de 65 ans, on fait la comparaison entre les deux sous-strates du sexe :\
 - Pour la sous-strate des individus agés de 65 ans et de sexe masculin, le rapport
-$\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-1.22}$\
+$\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-8.12}$\
 - Pour la sous-strate des individus féminins âgés de 65 ans, le rapport
-$\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-1.22}e^{-0.72}$ .\
+$\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-8.12}e^{-0.74}$ .\
 Si on compare les deux dernières sous-strate :\
-Dans les années 1998-1992, le rapport d'incidence moyenne du cancer entre les indivus âgés de 65 ans masculins et féminins est de $e^{2.14}= 0.49$.  
+Dans les années 1998-1992, le rapport d'incidence moyenne du cancer entre les indivus âgés de 65 ans masculins et féminins est de $e^{-0.74}= 0.48$.  
 
 
-Parmi les hommes âgés de 65ans, on fait la comparaison entre deux sous-strates de l'âge :\
+Parmi les hommes âgés de 65ans, on fait la comparaison entre deux sous-strates des période :\
 - Pour la sous-strate des individus masculins âgés de 65 ans dans les années de 1988 à 1992, le rapport
-$\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-1.22}$\
+$\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-8.12}$\
 - Pour la sous-strate des individus masculins, âgés de 65 ans dans les années 1943-1947, le rapport
-$\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-1.22}e^{-0.53}$ .\
+$\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-8.12}e^{-0.57}$ .\
 Si on compare les deux dernières sous-strate :\
-Parmi les hommes âgés de 65ans, le rapport d'incidence moyenne du cancer entre la période 1988-1992 et celle de 1943-1947 est de $e^{ -0.53}= 0.59$.
+Parmi les hommes âgés de 65ans, le rapport d'incidence moyenne du cancer entre la période 1988-1992 et celle de 1943-1947 est de $e^{ -0.57}= 0.58$.
+
+# Conclusion
 
 
 
