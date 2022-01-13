@@ -66,7 +66,7 @@ $$\mbox{taux.deces}=\frac{1000\times \mbox{nb.deces}}{PA}$$\
 Les 15 variables d'identification du décès sont calculés de la même
 manière.
 
-Puisque nous avons un très grand nombre de type de mort, on décide de se contrer sur un seul type : les morts par cancer. De plus comme dis plus haut, le mode de l'âge est très élévé, on décide donc de se réduire aux individus entre 65 et 79 ans.
+Puisque nous avons un très grand nombre de type de mort, on décide de se contrer sur un seul type : les morts par cancer. De plus comme dit plus haut, le mode de l'âge est très élévé, on décide donc de se réduire aux individus entre 65 et 79 ans.
 
 ```{r}
 mort <- mort %>% filter((age >=65) & (age <=79)) %>% 
@@ -92,23 +92,24 @@ de mourir d'une mort violente est de 0.991 et pour les femmes de cet âge
 sur cette période, ce risque est de 0.287.
 
 
-Voici plusieurs graphiques qui résument notre taux de décès de Cancer en fonction du sexe et de la période dans notre jeu de données. 
+Voici plusieurs graphiques qui résument notre taux de décès en fonction du sexe et de la période dans notre jeu de données. 
+
 ```{r}
-g1 <- ggplot(mort, aes( y=Cancer, fill=sex))+ 
+g1 <- ggplot(mort, aes( y=taux.deces, fill=sex))+ 
   geom_boxplot(aes(x=periode))+
   ggtitle("Le pourcentage de décès par Cancer par période et sexe")+
   ylab("Pourcentage de décès")
 
 
 g2 <- ggplot(mort)+ 
-  geom_bar(aes(x=periode, y=Cancer,  fill=age),
+  geom_bar(aes(x=periode, y=taux.deces,  fill=age),
           stat="identity", 
            position=position_dodge())+
   ggtitle("Nombre de mort par cancer en fonction de l'âge")
 
 
 g3 <- ggplot(mort)+ 
-  geom_bar(aes(x=age, y=Cancer,  fill=sex),
+  geom_bar(aes(x=age, y=taux.deces,  fill=sex),
            stat="identity", 
            position=position_dodge())+
   ggtitle("Nombre de mort par cancer en fonction de l'âge")
@@ -116,13 +117,13 @@ g3 <- ggplot(mort)+
 g1 + g3 + plot_layout(ncol = 1, heights = 100)
 ```
 
-On peut remarquer que les hommes ont plus tendance à mourir de Cancer que les femmes quelles que soit les périodes. On observe également que plus un individus veillit, plus il a de risque de mourir de Cancer. 
+On remarqu'au cours des périodes le pourcentage de décès est plus important pour les hommes que pour les femmes. De plus, plus on veillit plus on a de risque de mourir. Ceci parait logique. 
 
-```{r}
+```{r, echo=FALSE}
 g2
 ```
+Le taux de décès par période semble similaire. Et comme on l'a vu au graphique précédemment, le taux de décès augmente nettement avec l'âge 
 
-Plus on se rapproche de notre période actuelle, plus le taux de Cancer se augmente. On retrouve également l'observation du graphique précédent, plus on veillit, plus on a de risque de mourir de Cancer. 
 
 
 # Le modèle utilisé
@@ -159,25 +160,41 @@ La modalité de référence de  l'âge est 18ans. La modalité de référence po
 la période temporelle est entre 1943 et 1947. Enfin la modalité de
 référence au niveau sexe est l'homme.
 
-<!-- # ```{r} -->
-<!-- # mdoel_nb_deces<-glm(nb.deces ~ periode * sex * age,  offset = log(PA), family = "poisson", data = mort) -->
-<!-- # #summary(mdoel_nb_deces) -->
-<!-- # ``` -->
-<!-- #  -->
-<!-- # ```{r} -->
-<!-- # glm.update <- update(mdoel_nb_deces) -->
-<!-- # summary(stepAIC(glm.update)) -->
-<!-- # ``` -->
-
 
 ## Etude du nombre de morts par le Cancer chez les personnes âgés de 65-79ans.
 
+Avant de modéliser le modèle regardons quelques graphiques sur le cancer. 
+
+```{r}
+g1 <- ggplot(mort, aes( y=Cancer, fill=sex))+ 
+  geom_boxplot(aes(x=periode))+
+  ggtitle("Le pourcentage de décès par Cancer par période et sexe")+
+  ylab("Pourcentage de décès")
 
 
+g2 <- ggplot(mort)+ 
+  geom_bar(aes(x=periode, y=Cancer,  fill=age),
+          stat="identity", 
+           position=position_dodge())+
+  ggtitle("Nombre de mort par cancer en fonction de l'âge")
 
 
-Sur ce graphique, on voit clairement une différence entre les hommes et
-les femmes par rapport aux morts violentes.
+g3 <- ggplot(mort)+ 
+  geom_bar(aes(x=age, y=Cancer,  fill=sex),
+           stat="identity", 
+           position=position_dodge())+
+  ggtitle("Nombre de mort par cancer en fonction de l'âge")
+
+g1 + g3 + plot_layout(ncol = 1, heights = 100)
+```
+
+On peut remarquer que les hommes ont plus tendance à mourir de Cancer que les femmes quelles que soit les périodes. On observe également que plus un individus veillit, plus il a de risque de mourir de Cancer. 
+
+```{r, echo=FALSE}
+g2
+```
+
+Plus on se rapproche de notre période actuelle, plus le taux de Cancer se augmente. On retrouve également l'observation du graphique précédent, plus on veillit, plus on a de risque de mourir de Cancer. 
 
 ```{r}
 model_nb_deces<-glm(nb.Cancer ~ periode * sex * age,  offset = log(PA), 
