@@ -139,9 +139,6 @@ La modalité de référence de  l'âge est 18ans. La modalité de référence po
 la période temporelle est entre 1943 et 1947. Enfin la modalité de
 référence au niveau sexe est l'homme.
 
-
-
-## Etude du nombre de décès chez les jeunes de 18-25ans.
 <!-- # ```{r} -->
 <!-- # mdoel_nb_deces<-glm(nb.deces ~ periode * sex * age,  offset = log(PA), family = "poisson", data = mort) -->
 <!-- # #summary(mdoel_nb_deces) -->
@@ -153,13 +150,7 @@ référence au niveau sexe est l'homme.
 <!-- # ``` -->
 
 
-Parmis la sous-strates 43-47, on fait la comparaison entre 2 sous strates :\
--la sous-strate "18 ans et sexe=H" : le rapport $\frac{nb.decss}{pa}$ est $e^{-6.24}$ \
--la sous-strate "18 ans et sexe=F" : le rapport $\frac{nb.decss}{pa}$ est $e^{-6.24}$x$e^{-0.40}$
-  
-Si on compare les deux dernieres sous-strates, le rapport d'incidence moyenne sexe feminin et sexe masculin, à âge fixé de 18 ans vaut $e^{-0.35}=0.67032$
-
-## Etude des morts violentes chez les 18-25ans danois
+## Etude du nombre de morts par le Cancer chez les personnes âgés de 65-79ans.
 
 Lorsqu'on parle de morts violentes, on fait souvent allusion à des décès
 par traumatisme ou empoisonnement accidentels, par suicide ou par
@@ -182,11 +173,6 @@ model_nb_deces
 # summary(model_nb_deces)
 ```
 
-<!-- ```{r} -->
-<!-- glm.update <- update(model_nb_deces) -->
-<!-- summary(stepAIC(glm.update)) -->
-<!-- ``` -->
-
 
 Pour la période de 1988 à 1992 et parmi les hommes, on fait la comparaison entre deux sous-strates de l'âge :\
 - Pour la sous-strate des individus agés de 65 ans, le rapport
@@ -196,6 +182,7 @@ $\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-1.22}e^{2.14}$ .\
 Si on compare les deux dernières sous-strate :\
 Dans les années 1998-1992, le rapport d'incidence moyenne du cancer entre les indivus âgés de 65 ans et ceux âgés de 78 ans est de $e^{2.14}= 8.5$.  
 
+
 Pour la période de 1988 à 1992 et parmi les personnes âgées de 65 ans, on fait la comparaison entre deux sous-strates de l'âge :\
 - Pour la sous-strate des individus agés de 65 ans et de sexe masculin, le rapport
 $\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-1.22}$\
@@ -203,6 +190,7 @@ $\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-1.22}$\
 $\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-1.22}e^{-0.72}$ .\
 Si on compare les deux dernières sous-strate :\
 Dans les années 1998-1992, le rapport d'incidence moyenne du cancer entre les indivus âgés de 65 ans masculins et féminins est de $e^{2.14}= 0.49$.  
+
 
 Parmi les hommes âgés de 65ans, on fait la comparaison entre deux sous-strates de l'âge :\
 - Pour la sous-strate des individus masculins âgés de 65 ans dans les années de 1988 à 1992, le rapport
@@ -213,38 +201,45 @@ Si on compare les deux dernières sous-strate :\
 Parmi les hommes âgés de 65ans, le rapport d'incidence moyenne du cancer entre la période 1988-1992 et celle de 1943-1947 est de $e^{ -0.53}= 0.59$.
 
 
-## Etude des maladies du foie chez les jeunes de 18/25 ans
 
-```{r}
-#ggplot(mort)+
-#  geom_point(aes(x=age, y=Maladies.Foie, color=sex))+
-#  ggtitle("Nombre de décès par maladies de foie chez les danois de 18-25ans")
-```
-On remarque que ce sont les danoises plus touchées par les maladies de foie.
-Regardons maintenant en focntion de la période :
-```{r}
-#ggplot(mort)+
-#  geom_point(aes(x=age, y=Maladies.Foie, color=periode))+
-#  ggtitle("Nombre de décès chez les danois de 18-25ans")
-```
+<!-- ```{r} -->
+<!-- glm.update <- update(model_nb_deces) -->
+<!-- summary(stepAIC(glm.update)) -->
+<!-- ``` -->
 
 
+<!-- ## Etude des maladies du foie chez les jeunes de 18/25 ans -->
 
-```{r}
-#model_maladie.foie<-glm(nb.Maladies.Foie ~ periode * sex * age,  offset = log(PA), 
-                        #family = "poisson", 
-                        #data = mort)
-#model_maladie.foie
-#summary(model_maladie.foie)
+<!-- ```{r} -->
+<!-- #ggplot(mort)+ -->
+<!-- #  geom_point(aes(x=age, y=Maladies.Foie, color=sex))+ -->
+<!-- #  ggtitle("Nombre de décès par maladies de foie chez les danois de 18-25ans") -->
+<!-- ``` -->
+<!-- On remarque que ce sont les danoises plus touchées par les maladies de foie. -->
+<!-- Regardons maintenant en focntion de la période : -->
+<!-- ```{r} -->
+<!-- #ggplot(mort)+ -->
+<!-- #  geom_point(aes(x=age, y=Maladies.Foie, color=periode))+ -->
+<!-- #  ggtitle("Nombre de décès chez les danois de 18-25ans") -->
+<!-- ``` -->
 
-#glm.update <- update(model_maladie.foie)
-#summary(stepAIC(glm.update))
-```
-Parmis la sous-strates 43-47, on fait la comparaison entre 2 sous strates :\
--la sous-strate "18 ans et sexe=H" : le rapport $\frac{nb.maladies.foie}{\mbox{pa}}$ est $e^{-30.43}$\
--la sous-strate "18 ans et sexe=F" : le rapport $\frac{nb.decss}{\mbox{pa}}$ est $e^{-30.43}$x$e^{17.80}$
-  
-Si on compare les deux dernieres sous-strates, le rapport d'incidence moyenne sexe feminin et sexe masculin, à âge fixé de 18 ans vaut $e^{17.80}=53757836$
+
+
+<!-- ```{r} -->
+<!-- #model_maladie.foie<-glm(nb.Maladies.Foie ~ periode * sex * age,  offset = log(PA),  -->
+<!--                         #family = "poisson",  -->
+<!--                         #data = mort) -->
+<!-- #model_maladie.foie -->
+<!-- #summary(model_maladie.foie) -->
+
+<!-- #glm.update <- update(model_maladie.foie) -->
+<!-- #summary(stepAIC(glm.update)) -->
+<!-- ``` -->
+<!-- Parmis la sous-strates 43-47, on fait la comparaison entre 2 sous strates :\ -->
+<!-- -la sous-strate "18 ans et sexe=H" : le rapport $\frac{nb.maladies.foie}{\mbox{pa}}$ est $e^{-30.43}$\ -->
+<!-- -la sous-strate "18 ans et sexe=F" : le rapport $\frac{nb.decss}{\mbox{pa}}$ est $e^{-30.43}$x$e^{17.80}$ -->
+
+<!-- Si on compare les deux dernieres sous-strates, le rapport d'incidence moyenne sexe feminin et sexe masculin, à âge fixé de 18 ans vaut $e^{17.80}=53757836$ -->
 
 
 
