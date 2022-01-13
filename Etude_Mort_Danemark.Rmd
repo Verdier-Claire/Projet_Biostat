@@ -92,7 +92,7 @@ de mourir d'une mort violente est de 0.991 et pour les femmes de cet âge
 sur cette période, ce risque est de 0.287.
 
 
-Voici plusieurs graphs qui résument notre taux de décès en fonction du sexe et de la période dans notre jeu
+Voici plusieurs graphiques qui résument notre taux de décès de Cancer en fonction du sexe et de la période dans notre jeu de données. 
 ```{r}
 g1 <- ggplot(mort, aes( y=Cancer, fill=sex))+ 
   geom_boxplot(aes(x=periode))+
@@ -101,23 +101,28 @@ g1 <- ggplot(mort, aes( y=Cancer, fill=sex))+
 
 
 g2 <- ggplot(mort)+ 
-  geom_point(aes(x=periode, y=nb.Cancer,  color=age))+
+  geom_bar(aes(x=periode, y=Cancer,  fill=age),
+          stat="identity", 
+           position=position_dodge())+
   ggtitle("Nombre de mort par cancer en fonction de l'âge")
 
 
 g3 <- ggplot(mort)+ 
-  geom_bar(aes(x=age, y=nb.Cancer,  fill=sex),
+  geom_bar(aes(x=age, y=Cancer,  fill=sex),
            stat="identity", 
            position=position_dodge())+
   ggtitle("Nombre de mort par cancer en fonction de l'âge")
 
-g1
-g2
-g3
+g1 + g3 + plot_layout(ncol = 1, heights = 100)
 ```
 
+On peut remarquer que les hommes ont plus tendance à mourir de Cancer que les femmes quelles que soit les périodes. On observe également que plus un individus veillit, plus il a de risque de mourir de Cancer. 
 
-On peut remarquer que les hommes ont plus tendance à mourir que les femmes quelles que soit les périodes. Plus on se rapproche de notre période actuelle, plus le taux de décès se stabilise chez les individus. De plus, le taux de décès assez élévé pendant la période 43/47 peut s'expliquer par la présence de guerre.
+```{r}
+g2
+```
+
+Plus on se rapproche de notre période actuelle, plus le taux de Cancer se augmente. On retrouve également l'observation du graphique précédent, plus on veillit, plus on a de risque de mourir de Cancer. 
 
 
 # Le modèle utilisé
@@ -210,7 +215,7 @@ Parmi les hommes âgés de 65ans, le rapport d'incidence moyenne du cancer entre
 
 # Conclusion
 
-
+On remarque clairement que le sexe de l'individu et son âge a un impact sur la mort du Cancer. Pour continuer cette étude il serait intéressant d'observer les périodes plus récentes. En effet, les dernières données du jeu de données sont d'il y a 30 ans maintenant. On voudrait donc vouloir observer les différentes causes de décès des individus danoises des trois dernières décennies. De plus, pour comparer entre les hommes et les femmes, on pourrait aussi faire une analyse plus détaillée sur le Cancer avec des données sur le type de Cancer que l'individu avait. Cela nous permettrait de savoir si par exemple un individu masculin est plus touché d'un cancer du poumon qu'un individu féminin. 
 
 <!-- ```{r} -->
 <!-- glm.update <- update(model_nb_deces) -->
