@@ -2,8 +2,12 @@
 title: "Biostat_projet"
 author: "Claire et Lucie"
 date: "01/12/2021"
-output: pdf_document
+output: 
+  pdf_document: 
+    toc: yes
 ---
+
+\newpage
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -15,11 +19,13 @@ library(tinytex)
 library(patchwork)
 ```
 
-Le Danemark est un pays scandinave. Pour ce pays, nous allons étudier
+# I. Introduction 
+
+Nous avons un jeu de données sur la mortalité au Danemark de 1943 à 1992. Le Danemark est un pays scandinave. Pour ce pays, nous allons étudier
 les différentes causes de mortalités en fonction de l'âge des individus,
 de la période où elles sont mortes.
 
-# Explications du jeu de données et nettoyages
+# II. Explications du jeu de données et nettoyage
 
 ```{r}
 mort <- read.csv("mortDK.csv", header = TRUE, sep = ";")
@@ -59,14 +65,15 @@ de décès et 15 variables sur l'identification du décès. Lorsque qu'on
 parle d'identification du décès, on parle si la personne est morte d'un
 cancer, d'une mort naturelle, par exemple. 
 
-On peut voir que la période sur laquelle s'éteint cette étude est très longue, environ sur 50 ans. Le mode de l'âge est très élévé également, on a des individus de 0 ans jusqu'à 84 ans.
+On décide d'enlever les données avec un taux de décés > 100 car cela implique des données fausses.
+
 
 La variable *taux.deces* est calculée d'après la formule suivante :
 $$\mbox{taux.deces}=\frac{1000\times \mbox{nb.deces}}{PA}$$\
 Les 15 variables d'identification du décès sont calculés de la même
 manière.
 
-Puisque nous avons un très grand nombre de type de mort, on décide de se contrer sur un seul type : les morts par cancer. De plus comme dit plus haut, le mode de l'âge est très élévé, on décide donc de se réduire aux individus entre 65 et 79 ans.
+
 
 ```{r}
 mort <- mort %>% filter((age >=65) & (age <=79)) %>% 
@@ -94,78 +101,41 @@ sur cette période, ce risque est de 0.287.
 
 Voici plusieurs graphiques qui résument notre taux de décès en fonction du sexe et de la période dans notre jeu de données. 
 
-```{r}
-g1 <- ggplot(mort, aes( y=taux.deces, fill=sex))+ 
+```{r, echo=FALSE}
+g3 <- ggplot(mort, aes( y=taux.deces, fill=sex))+ 
   geom_boxplot(aes(x=periode))+
-  ggtitle("Le pourcentage de décès par Cancer par période et sexe")+
+  ggtitle("Le pourcentage de décès par période et sexe")+
   ylab("Pourcentage de décès")
 
-
-g2 <- ggplot(mort)+ 
-  geom_bar(aes(x=periode, y=taux.deces,  fill=age),
-          stat="identity", 
-           position=position_dodge())+
-  ggtitle("Nombre de mort par cancer en fonction de l'âge")
-
-
-g3 <- ggplot(mort)+ 
+g1 <- ggplot(mort)+ 
   geom_bar(aes(x=age, y=taux.deces,  fill=sex),
            stat="identity", 
            position=position_dodge())+
-  ggtitle("Nombre de mort par cancer en fonction de l'âge")
+  ggtitle("Nombre de décès en fonction de l'âge")
 
 g1 + g3 + plot_layout(ncol = 1, heights = 100)
 ```
 
-On remarqu'au cours des périodes le pourcentage de décès est plus important pour les hommes que pour les femmes. De plus, plus on veillit plus on a de risque de mourir. Ceci parait logique. 
+On remarqu'au cours des périodes le pourcentage de décès est plus important pour les hommes que pour les femmes. De plus, plus on veillit plus on a de risque de mourir. Ceci parait logique. De plus, on peut voir que pour les périodes les plus anciennes, la médiane du taux de décès etait sensiblement la même pour les hommes que pour les femmes et lorsque que l'on se rapproche des périodes plus récentes, on observe une différence de médiane, elle est plus faible chez les femmes que chez les hommes.
 
 ```{r, echo=FALSE}
+g2 <- ggplot(mort)+ 
+  geom_bar(aes(x=periode, y=nb.deces,  fill=age),
+          stat="identity", 
+          position=position_dodge())+
+  ggtitle("Nombre de mort par age en fonction de la période")
 g2
 ```
-Le taux de décès par période semble similaire. Et comme on l'a vu au graphique précédemment, le taux de décès augmente nettement avec l'âge 
+Le taux de décès par période semble similaire. Et comme on l'a vu au graphique précédemment, le taux de décès augmente nettement avec l'âge. On peut aussi voir que pendant les années 1988/1992, le nombre de décès a diminuer par rapport l'époque précédente.
 
 
+Puisque nous avons un très grand nombre de type de mort, on décide de se concentrer sur un seul type : les morts par cancer. De plus le mode de l'âge est très élévé, on décide donc de se réduire aux individus entre 65 et 79 ans.
 
-# Le modèle utilisé
-
-Au vu de notre jeu de données, il semble évident que nous allons réaliser une enquète de cohorte. En effet, la principale caractéristique d'une enquète de cohorte est qu'elle permet de suivre les individus dans le temps sur une période donnée.
-
-De plus, nous savons que les résultats d'une enquète de cohorte peuvent être représentés sous 2 deux formes différentes. Ici, nous avons le cas où pour chaque combinaison de modalité des covariables, nous avons le nombre de décès observés pendant la période de suivie $[t_1,t_2]$ ainsi que le nombre de personnes-années correspondant. Nous avons un tableau de morbidité. 
-
-Un individu pourra donc, au cours du suivi, contribuer aux personnes-années de différentes strates, si l'une au moins de ses covariables évolue au cours du temps.
-
-Notre objectif est donc de déterminer si les covariables *âge, sexe* et *période* ont un effets sur les différentes causes de mortalité. Nous utiliserons des modèle de Poisson. 
-
-
-## Modalité de référence
-
-Pour pouvoir effectuer nos comparaisons, on doit d'abord connaître nos modalités de références :
-
-```{r}
-contrasts(mort$age)
-```
-
-
-```{r}
-mort$periode <- relevel(mort$periode, ref = "88-92")
-contrasts(mort$periode)
-```
-
-
-```{r}
-contrasts(mort$sex)
-```
-
-La modalité de référence de  l'âge est 18ans. La modalité de référence pour
-la période temporelle est entre 1943 et 1947. Enfin la modalité de
-référence au niveau sexe est l'homme.
-
-
-## Etude du nombre de morts par le Cancer chez les personnes âgés de 65-79ans.
+# III. Etude du nombre de morts par le Cancer chez les personnes âgés de 65-79ans.
 
 Avant de modéliser le modèle regardons quelques graphiques sur le cancer. 
 
-```{r}
+```{r, echo=FALSE}
 g1 <- ggplot(mort, aes( y=Cancer, fill=sex))+ 
   geom_boxplot(aes(x=periode))+
   ggtitle("Le pourcentage de décès par Cancer par période et sexe")+
@@ -196,11 +166,45 @@ g2
 
 Plus on se rapproche de notre période actuelle, plus le taux de Cancer se augmente. On retrouve également l'observation du graphique précédent, plus on veillit, plus on a de risque de mourir de Cancer. 
 
+## 1. Le modèle utilisé
+
+Au vu de notre jeu de données, il semble évident que nous allons réaliser une enquète de cohorte. En effet, la principale caractéristique d'une enquète de cohorte est qu'elle permet de suivre les individus dans le temps sur une période donnée.
+
+De plus, nous savons que les résultats d'une enquète de cohorte peuvent être représentés sous 2 deux formes différentes. Ici, nous avons le cas où pour chaque combinaison de modalité des covariables, nous avons le nombre de décès observés pendant la période de suivie $[t_1,t_2]$ ainsi que le nombre de personnes-années correspondant. Nous avons un tableau de morbidité. 
+
+Un individu pourra donc, au cours du suivi, contribuer aux personnes-années de différentes strates, si l'une au moins de ses covariables évolue au cours du temps.
+
+Notre objectif est donc de déterminer si les covariables *âge, sexe* et *période* ont un effets sur les différentes causes de mortalité. Nous utiliserons des modèle de Poisson. 
+
+
+## 2. Modalité de référence
+
+Pour pouvoir effectuer nos comparaisons, on doit d'abord connaître nos modalités de références :
+
+```{r}
+contrasts(mort$age)
+```
+
+
+```{r}
+mort$periode <- relevel(mort$periode, ref = "88-92")
+contrasts(mort$periode)
+```
+
+
+```{r}
+contrasts(mort$sex)
+```
+
+La modalité de référence de  l'âge est 65ans La modalité de référence pour
+la période temporelle est entre 1988/1992. Enfin la modalité de
+référence au niveau sexe est l'homme.
+
+
 ```{r}
 model_nb_deces<-glm(nb.Cancer ~ periode * sex * age,  offset = log(PA), 
                     family = "poisson", data = mort)
 model_nb_deces
-# summary(model_nb_deces)
 ```
 
 
@@ -209,8 +213,9 @@ Pour la période de 1988 à 1992 et parmi les hommes, on fait la comparaison ent
 $\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-8.12}$\
 - Pour la sous-strate des individus masculins, agés de 78 ans, le rapport
 $\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-8.12}e^{2.13}$ .\
-Si on compare les deux dernières sous-strate :\
+Si on compare les deux sous-strates :\
 Dans les années 1998-1992, le rapport d'incidence moyenne du cancer entre les indivus âgés de 65 ans et ceux âgés de 78 ans est de $e^{2.13}= 8.4$.  
+
 
 
 Pour la période de 1988 à 1992 et parmi les personnes âgées de 65 ans, on fait la comparaison entre les deux sous-strates du sexe :\
@@ -218,8 +223,9 @@ Pour la période de 1988 à 1992 et parmi les personnes âgées de 65 ans, on fa
 $\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-8.12}$\
 - Pour la sous-strate des individus féminins âgés de 65 ans, le rapport
 $\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-8.12}e^{-0.74}$ .\
-Si on compare les deux dernières sous-strate :\
+Si on compare les deux sous-strates :\
 Dans les années 1998-1992, le rapport d'incidence moyenne du cancer entre les indivus âgés de 65 ans masculins et féminins est de $e^{-0.74}= 0.48$.  
+
 
 
 Parmi les hommes âgés de 65ans, on fait la comparaison entre deux sous-strates des période :\
@@ -227,51 +233,28 @@ Parmi les hommes âgés de 65ans, on fait la comparaison entre deux sous-strates
 $\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-8.12}$\
 - Pour la sous-strate des individus masculins, âgés de 65 ans dans les années 1943-1947, le rapport
 $\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-8.12}e^{-0.57}$ .\
-Si on compare les deux dernières sous-strate :\
+Si on compare les deux  sous-strates :\
 Parmi les hommes âgés de 65ans, le rapport d'incidence moyenne du cancer entre la période 1988-1992 et celle de 1943-1947 est de $e^{ -0.57}= 0.58$.
 
-# Conclusion
+
+
+Parmi les femmes de la période 1988-1992, on fait la comparaison entre deux sous-strates des âges :\
+- Pour la sous-strate des individus féminin âgés de 65 ans dans les années de 1988 à 1992, le rapport
+$\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-8.12}e^{-0.74}$\
+- Pour la sous-strate des individus féminin, âgés de 75 ans dans les années 1988-1992, le rapport
+$\frac{\mbox{Cancer}}{\mbox{PA}}$ est $e^{-8.12}e^{-0.36}$ .\
+Si on compare les deux sous-strates :\
+Parmi les femmes des années 1988-1992, le rapport d'incidence moyenne du cancer entre celles agées de 65 ans et celles agées de 75 est de $\frac{e^{-0.74}}{e^{-0.36}}= 0.68$.
+
+
+# IV. Conclusion
 
 On remarque clairement que le sexe de l'individu et son âge a un impact sur la mort du Cancer. Pour continuer cette étude il serait intéressant d'observer les périodes plus récentes. En effet, les dernières données du jeu de données sont d'il y a 30 ans maintenant. On voudrait donc vouloir observer les différentes causes de décès des individus danoises des trois dernières décennies. De plus, pour comparer entre les hommes et les femmes, on pourrait aussi faire une analyse plus détaillée sur le Cancer avec des données sur le type de Cancer que l'individu avait. Cela nous permettrait de savoir si par exemple un individu masculin est plus touché d'un cancer du poumon qu'un individu féminin. 
 
-<!-- ```{r} -->
-<!-- glm.update <- update(model_nb_deces) -->
-<!-- summary(stepAIC(glm.update)) -->
-<!-- ``` -->
-
-
-<!-- ## Etude des maladies du foie chez les jeunes de 18/25 ans -->
-
-<!-- ```{r} -->
-<!-- #ggplot(mort)+ -->
-<!-- #  geom_point(aes(x=age, y=Maladies.Foie, color=sex))+ -->
-<!-- #  ggtitle("Nombre de décès par maladies de foie chez les danois de 18-25ans") -->
-<!-- ``` -->
-<!-- On remarque que ce sont les danoises plus touchées par les maladies de foie. -->
-<!-- Regardons maintenant en focntion de la période : -->
-<!-- ```{r} -->
-<!-- #ggplot(mort)+ -->
-<!-- #  geom_point(aes(x=age, y=Maladies.Foie, color=periode))+ -->
-<!-- #  ggtitle("Nombre de décès chez les danois de 18-25ans") -->
-<!-- ``` -->
 
 
 
-<!-- ```{r} -->
-<!-- #model_maladie.foie<-glm(nb.Maladies.Foie ~ periode * sex * age,  offset = log(PA),  -->
-<!--                         #family = "poisson",  -->
-<!--                         #data = mort) -->
-<!-- #model_maladie.foie -->
-<!-- #summary(model_maladie.foie) -->
 
-<!-- #glm.update <- update(model_maladie.foie) -->
-<!-- #summary(stepAIC(glm.update)) -->
-<!-- ``` -->
-<!-- Parmis la sous-strates 43-47, on fait la comparaison entre 2 sous strates :\ -->
-<!-- -la sous-strate "18 ans et sexe=H" : le rapport $\frac{nb.maladies.foie}{\mbox{pa}}$ est $e^{-30.43}$\ -->
-<!-- -la sous-strate "18 ans et sexe=F" : le rapport $\frac{nb.decss}{\mbox{pa}}$ est $e^{-30.43}$x$e^{17.80}$ -->
-
-<!-- Si on compare les deux dernieres sous-strates, le rapport d'incidence moyenne sexe feminin et sexe masculin, à âge fixé de 18 ans vaut $e^{17.80}=53757836$ -->
 
 
 
